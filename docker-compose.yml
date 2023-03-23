@@ -1,0 +1,27 @@
+version: '2'
+x-logging: &logging
+ driver: "json-file"
+ options:
+   max-size: "1000m"
+   max-file: "1"
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    healthcheck:
+      test: curl -sS http://nginx | grep -c works > /dev/null
+      interval: 6s
+      retries: 5
+      start_period: 2s
+      timeout: 10s
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./www:/var/www
+      - ./logs:/var/log/nginx
+    links:
+      - php
+  php:
+    build: ./image
+    volumes:
+      - ./www:/var/www
